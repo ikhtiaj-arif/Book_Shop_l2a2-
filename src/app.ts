@@ -1,10 +1,22 @@
-import express from 'express'
-const app = express()
-const port = 3000
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import { ProductsRoutes } from './models/products/products.routes';
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+const app = express();
+
+//parsers
+app.use(express.json());
+app.use(cors());
+
+//example of controller function 
+const baseController = async (req: Request, res: Response) => {
+  res.send('Hello World!');
+};
+
+//here the routes of products are separated to product routes
+app.use('/api/v1/products', ProductsRoutes)
 
 
-export default app
+app.get('/', baseController);
+
+export default app;
