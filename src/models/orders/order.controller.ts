@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { orderServices } from './order.services';
 
-const { createOrderToDB } = orderServices;
+const { createOrderToDB, getRevenueFromDB } = orderServices;
 
 const createOrder = async (req: Request, res: Response) => {
   try {
@@ -25,10 +25,11 @@ const createOrder = async (req: Request, res: Response) => {
 
 const getRevenue = async (req: Request, res: Response) => {
   try {
+    const result = await getRevenueFromDB();
     res.status(200).json({
-      message: '',
+      message: 'Revenue calculated successfully',
       status: true,
-      data: [],
+      data: result,
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
