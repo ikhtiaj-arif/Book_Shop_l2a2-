@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { ProductsRoutes } from './models/products/products.routes';
+import { productsRoutes } from './models/products/products.routes';
+import { orderRoutes } from './models/orders/order.routes';
 
 const app = express();
 
@@ -8,14 +9,14 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-//example of controller function 
+//example of controller function
 const baseController = async (req: Request, res: Response) => {
   res.send('Hello World!');
 };
 
 //here the routes of products are separated to product routes
-app.use('/api/v1/products', ProductsRoutes)
-
+app.use('/api', productsRoutes);
+app.use('/api', orderRoutes);
 
 app.get('/', baseController);
 

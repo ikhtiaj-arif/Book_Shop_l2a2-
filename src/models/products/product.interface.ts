@@ -12,7 +12,7 @@
 
 // inStock (boolean): Indicates if the book is in stock.
 
-export interface IProduct {
+export interface IBook {
   title: string;
   author: string;
   price: number;
