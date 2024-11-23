@@ -12,6 +12,7 @@ const getAllBooksFromDB = async () => {
   const result = await Book.find();
   return result;
 };
+
 const getBookFromDB = async (id: string) => {
   //get one book by _id using findById
   const result = await Book.findById(id);
@@ -28,17 +29,16 @@ const updateBookToDB = async (id: string, data: Partial<IBook>) => {
 };
 
 const deleteBookFromDB = async (id: string) => {
-    //get one book by _id using findById
-    const result = await Book.findByIdAndDelete(id);
-  
-    return result;
-  };
+  //get one book by _id using findById
+  const result = await Book.findByIdAndDelete(id);
 
+  return result;
+};
 
 export const productServices = {
   createBookIntoDB,
   getAllBooksFromDB,
   getBookFromDB,
   updateBookToDB,
-  deleteBookFromDB
+  deleteBookFromDB,
 };

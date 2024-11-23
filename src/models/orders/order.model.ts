@@ -56,14 +56,14 @@ orderSchema.pre('save', async function (next) {
     //if bookId dosen't match any books
     if (!book) {
       const error = new Error('Book not found');
-      error.name = "bookNotFound"
+      error.name = 'bookNotFound';
       return next(error);
     }
 
     //check if the quantity of order is more then the stock
     if (book.quantity < quantity) {
       const error = new Error('Insufficient books in stock');
-      error.name= "insufficientStock"
+      error.name = 'insufficientStock';
       return next(error);
     }
 

@@ -66,7 +66,7 @@ const getRevenueFromDB = async () => {
         totalRevenue: { $sum: '$totalPrice' },
       },
     },
-  
+
     {
       $project: { _id: 0, totalRevenue: 1 },
     },

@@ -10,7 +10,6 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-
 //example of controller function
 const baseController = async (req: Request, res: Response) => {
   res.send('Hello World!');

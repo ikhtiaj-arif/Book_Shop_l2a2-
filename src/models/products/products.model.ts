@@ -75,13 +75,5 @@ const bookSchema = new Schema<IBook>({
   },
 });
 
-
-bookSchema.pre('findOneAndUpdate', function(next) {
- 
-  next();
-});
-
-
-
 // create a Model.
 export const Book = model<IBook>('Books', bookSchema);

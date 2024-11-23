@@ -90,9 +90,7 @@ const updateBook = async (req: Request, res: Response) => {
         bookData.inStock = true;
       }
     }
-
     const result = await updateBookToDB(bookID, bookData);
-
     if (result) {
       res.status(200).json({
         message: 'Book updated successfully',
