@@ -15,11 +15,25 @@ const createOrder = async (req: Request, res: Response) => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    res.status(500).json({
-      message: error._message,
-      success: false,
-      error: error.message || 'Something went wrong',
-    });
+    if (error.name == 'bookNotFound') {
+      res.status(404).json({
+        message: error._message,
+        success: false,
+        error: error.message || 'Something went wrong',
+      });
+    } else if (error.name == 'insufficientStock') {
+      res.status(400).json({
+        message: error._message,
+        success: false,
+        error: error.message || 'Something went wrong',
+      });
+    } else {
+      res.status(500).json({
+        message: error._message,
+        success: false,
+        error: error || 'Something went wrong',
+      });
+    }
   }
 };
 

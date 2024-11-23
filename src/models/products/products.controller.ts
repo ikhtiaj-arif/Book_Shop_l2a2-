@@ -82,6 +82,15 @@ const updateBook = async (req: Request, res: Response) => {
   try {
     const bookID = req.params.productId;
     const bookData = req.body;
+    //  checking if the user is updating the quantity of the book or not
+    if (bookData.quantity !== undefined) {
+      if (bookData.quantity === 0) {
+        bookData.inStock = false;
+      } else {
+        bookData.inStock = true;
+      }
+    }
+
     const result = await updateBookToDB(bookID, bookData);
 
     if (result) {

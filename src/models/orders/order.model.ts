@@ -56,12 +56,14 @@ orderSchema.pre('save', async function (next) {
     //if bookId dosen't match any books
     if (!book) {
       const error = new Error('Book not found');
+      error.name = "bookNotFound"
       return next(error);
     }
 
     //check if the quantity of order is more then the stock
     if (book.quantity < quantity) {
       const error = new Error('Insufficient books in stock');
+      error.name= "insufficientStock"
       return next(error);
     }
 
@@ -76,9 +78,9 @@ orderSchema.pre('save', async function (next) {
     await book.save();
 
     next();
-   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error : any) {
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
     next(error);
   }
 });

@@ -1,13 +1,15 @@
-import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { productsRoutes } from './models/products/products.routes';
+import express, { Request, Response } from 'express';
+
 import { orderRoutes } from './models/orders/order.routes';
+import { productsRoutes } from './models/products/products.routes';
 
 const app = express();
 
 //parsers
 app.use(express.json());
 app.use(cors());
+
 
 //example of controller function
 const baseController = async (req: Request, res: Response) => {

@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-import { IBook } from './product.interface';
 import validator from 'validator';
+import { IBook } from './product.interface';
 
 //create Schema
 const bookSchema = new Schema<IBook>({
@@ -9,8 +9,7 @@ const bookSchema = new Schema<IBook>({
     required: [true, 'Title is required!'],
     unique: true,
     validate: {
-      validator: (value: string) =>
-        validator.isAlphanumeric(value.replace(/[\s.,']/g, ''), 'en-US'),
+      validator: (value: string) => /^[a-zA-Z0-9\s.,'’]+$/.test(value.trim()),
       message: 'Title contains invalid characters!',
     },
   },
@@ -43,16 +42,14 @@ const bookSchema = new Schema<IBook>({
     type: String,
     required: [true, 'Description is required!'],
     validate: [
-      //validating minimum char
+      // Validating minimum characters
       {
         validator: (value: string) => value.trim().length >= 10,
         message: 'Description must be at least 10 characters!',
       },
-      //validating characters
       {
-        validator: (value: string) => /^[a-zA-Z\s]+$/.test(value.trim()),
-        message:
-          'Description must only contain alphabetic characters and spaces!',
+        validator: (value: string) => /^[\w\W\s]+$/.test(value.trim()),
+        message: 'Description must contain valid characters!',
       },
     ],
   },
@@ -77,6 +74,14 @@ const bookSchema = new Schema<IBook>({
     default: Date.now,
   },
 });
+
+
+bookSchema.pre('findOneAndUpdate', function(next) {
+ 
+  next();
+});
+
+
 
 // create a Model.
 export const Book = model<IBook>('Books', bookSchema);

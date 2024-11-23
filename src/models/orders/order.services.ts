@@ -6,7 +6,7 @@ const createOrderToDB = async (orderData: IOrder) => {
   return result;
 };
 
-const getRevenueFromDB = async () => {
+const getRevenueByBookFromDB = async () => {
   const result = await Order.aggregate([
     //! here we need the total revenue generated from all orders -->
     // to achieve this we need to aggregate in different stages.
@@ -57,7 +57,26 @@ const getRevenueFromDB = async () => {
   //   console.log(JSON.stringify(result, null, 2));
 };
 
+const getRevenueFromDB = async () => {
+  const result = await Order.aggregate([
+    //we can group all the documents using _id: null and sum there revenue using $sum
+    {
+      $group: {
+        _id: null,
+        totalRevenue: { $sum: '$totalPrice' },
+      },
+    },
+  
+    {
+      $project: { _id: 0, totalRevenue: 1 },
+    },
+  ]);
+
+  return result[0];
+  // console.log(JSON.stringify(result, null, 2));
+};
 export const orderServices = {
   createOrderToDB,
   getRevenueFromDB,
+  getRevenueByBookFromDB,
 };
