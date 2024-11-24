@@ -21,7 +21,7 @@ Before running the Book_shop project, install the following:
 
 ### Development Tools:
 
-- **Mongoose** – A MongoDB ODM (Object Data Modeling) library to interact with the MongoDB database.
+- **Mongoose** – A MongoDB ODM library to interact with the MongoDB database.
 - **ts-node-dev** – For running TypeScript code in development mode.
 - **ESLint** – For linting and ensuring code quality.
 - **Prettier** – For automatic code formatting.
