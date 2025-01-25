@@ -1,31 +1,24 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const cors_1 = __importDefault(require("cors"));
 const express_1 = __importDefault(require("express"));
-const order_routes_1 = require("./models/orders/order.routes");
-const products_routes_1 = require("./models/products/products.routes");
+const ErrorHandler_1 = __importDefault(require("./app/middlewears/ErrorHandler"));
+const auth_route_1 = require("./app/modules/Auth/auth.route");
+const user_routes_1 = require("./app/modules/user/user.routes");
 const app = (0, express_1.default)();
+const port = 3000;
 //parsers
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-//example of controller function
-const baseController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.send('Hello World!');
-});
-//here the routes of products are separated to product routes
-app.use('/api', products_routes_1.productsRoutes);
-app.use('/api', order_routes_1.orderRoutes);
-app.get('/', baseController);
+//application routes
+app.use("/api", user_routes_1.userRoutes);
+app.use("/api", auth_route_1.AuthRoutes);
+const getController = (req, res) => {
+    res.send("Hello World!");
+};
+app.get("/", getController);
+app.use(ErrorHandler_1.default);
 exports.default = app;

@@ -12,21 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const app_1 = __importDefault(require("./app"));
-const config_1 = __importDefault(require("./app/config"));
-let server;
-function main() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield mongoose_1.default.connect(config_1.default.database_url);
-            server = app_1.default.listen(config_1.default.port, () => {
-                console.log(`Example app listening on port ${config_1.default.port}`);
-            });
-        }
-        catch (error) {
-            console.log(error);
-        }
+exports.userControllers = void 0;
+const CatchAsync_1 = __importDefault(require("../../utils/CatchAsync"));
+const SendResponse_1 = __importDefault(require("../../utils/SendResponse"));
+const user_services_1 = require("./user.services");
+const { blockUserIntoDB } = user_services_1.userServices;
+const blockUser = (0, CatchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const blockId = req.params.userId;
+    yield blockUserIntoDB(blockId);
+    (0, SendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "User blocked successfully!",
+        // data: {},
     });
-}
-main();
+}));
+exports.userControllers = {
+    // createUser,
+    blockUser,
+};
