@@ -7,11 +7,11 @@ const router = express.Router();
 const { createUser, loginUser } = AuthControllers;
 
 router.post(
-  "/auth/register",
+  "/register",
   ValidateRequest(userValidations.createUserValidationSchema),
   createUser
 );
 
-router.post("/auth/login", loginUser);
+router.post("/login", loginUser);
 
 export const AuthRoutes = router;
