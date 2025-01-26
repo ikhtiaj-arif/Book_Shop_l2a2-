@@ -12,7 +12,7 @@ const handleDuplicateError = (err) => {
     const statusCode = 400;
     return {
         statusCode,
-        message: 'Invalid ID',
+        message: `${extractedMessage} already exists!`,
         errorSources,
     };
 };
