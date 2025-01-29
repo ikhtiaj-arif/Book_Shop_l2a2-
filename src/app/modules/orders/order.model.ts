@@ -1,38 +1,29 @@
-import mongoose, { model, Schema, Document, Types } from "mongoose";
+import { model, Schema } from "mongoose";
 import { IOrder } from "./order.interface";
 
-// Create Schema
-const orderSchema = new Schema<IOrder>(
+const OrderSchema = new Schema<IOrder>(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: "Users",
+      ref: "Product",
       required: true,
     },
     products: [
       {
         product: {
           type: Schema.Types.ObjectId,
-          ref: "Books",
+          ref: "Product",
           required: true,
         },
         quantity: {
           type: Number,
           required: true,
-          validate: {
-            validator: (value: number) => value > 0,
-            message: "Quantity must be a positive integer",
-          },
         },
       },
     ],
     totalPrice: {
       type: Number,
       required: true,
-      validate: {
-        validator: (value: number) => value > 0,
-        message: "Total price must be a positive number",
-      },
     },
     status: {
       type: String,
@@ -54,38 +45,6 @@ const orderSchema = new Schema<IOrder>(
   }
 );
 
+const Order = model<IOrder>("Order", OrderSchema);
 
-orderSchema.pre("save", async function (next) {
-  try {
-    for (const item of this.products) {
-      const book = await mongoose.model("Books").findById(item.product);
-
-      if (!book) {
-        const error = new Error("Book not found");
-        error.name = "bookNotFound";
-        return next(error);
-      }
-
-      if (book.quantity < item.quantity) {
-        const error = new Error("Insufficient books in stock");
-        error.name = "insufficientStock";
-        return next(error);
-      }
-
-      book.quantity -= item.quantity;
-
-      if (book.quantity === 0) {
-        book.inStock = false;
-      }
-
-      await book.save();
-    }
-
-    next();
-  } catch (error) {
-    throw new Error("Something went wrong")
-  }
-});
-
-// Create and export Model
-export const Order = model<IOrder>("Orders", orderSchema);
+export default Order;

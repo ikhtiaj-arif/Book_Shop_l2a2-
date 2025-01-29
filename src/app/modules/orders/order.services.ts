@@ -1,6 +1,7 @@
 import { Book } from "../products/products.model";
 import { IUser } from "../user/user.interface";
-import { Order } from "./order.model";
+import Order from "./order.model";
+
 import { orderUtils } from "./order.utils";
 
 // const createOrderToDB = async (orderData: IOrder, client_ip: string) => {
@@ -42,7 +43,6 @@ const createOrderToDB = async (
   payload: { products: { product: string; quantity: number }[] },
   client_ip: string
 ) => {
-
   if (!payload?.products?.length) throw new Error("Order is not specified");
 
   const products = payload.products;
