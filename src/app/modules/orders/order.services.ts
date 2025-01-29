@@ -1,8 +1,129 @@
-import { IOrder } from './order.interface';
-import { Order } from './order.model';
+import { Book } from "../products/products.model";
+import { IUser } from "../user/user.interface";
+import { Order } from "./order.model";
+import { orderUtils } from "./order.utils";
 
-const createOrderToDB = async (orderData: IOrder) => {
-  const result = await Order.create(orderData);
+// const createOrderToDB = async (orderData: IOrder, client_ip: string) => {
+//   let order;
+//   // let order = await Order.create({orderData});
+
+//   //payment integration
+
+//   const shurjopayPayload = {
+//     amount: 12,
+//     order_id: "orderData",
+//     currency: "BDT",
+//     customer_name: "BDT",
+//     customer_address: "BDT",
+//     customer_email: "BDT",
+//     customer_phone: "BDT",
+//     customer_city: "BDT",
+//     client_ip,
+//     data: orderData,
+//   };
+
+//   const payment = await orderUtils.makePayment(shurjopayPayload);
+
+//   if (payment?.transactionStatus) {
+//     order = await Order.create({
+//       ...orderData,
+//       transaction: {
+//         id: payment.sp_order_id,
+//         transactionStatus: payment.transactionStatus,
+//       },
+//     });
+//   }
+
+//   return { payment, order };
+// };
+
+const createOrderToDB = async (
+  user: IUser,
+  payload: { products: { product: string; quantity: number }[] },
+  client_ip: string
+) => {
+
+  if (!payload?.products?.length) throw new Error("Order is not specified");
+
+  const products = payload.products;
+
+  let totalPrice = 0;
+  const productDetails = await Promise.all(
+    products.map(async (item) => {
+      const product = await Book.findById(item.product);
+      if (product) {
+        const subtotal = product ? (product.price || 0) * item.quantity : 0;
+        totalPrice += subtotal;
+        return item;
+      }
+    })
+  );
+
+  let order = await Order.create({
+    user,
+    products: productDetails,
+    totalPrice,
+  });
+
+  // payment integration
+  const shurjopayPayload = {
+    amount: totalPrice,
+    order_id: order._id,
+    currency: "BDT",
+    customer_name: user.name,
+    customer_address: "user.address",
+    customer_email: user.email,
+    customer_phone: "user.phone",
+    customer_city: "user.city",
+    client_ip,
+  };
+
+  const payment = await orderUtils.makePayment(shurjopayPayload);
+
+  if (payment?.transactionStatus) {
+    order = await order.updateOne({
+      transaction: {
+        id: payment.sp_order_id,
+        transactionStatus: payment.transactionStatus,
+      },
+    });
+  }
+
+  return payment.checkout_url;
+};
+
+const verifyPaymentDB = async (order_id: string) => {
+  const verifiedPayment = await orderUtils.verifyPayment(order_id);
+
+  if (verifiedPayment.length) {
+    await Order.findOneAndUpdate(
+      {
+        "transaction.id": order_id,
+      },
+      {
+        "transaction.bank_status": verifiedPayment[0].bank_status,
+        "transaction.sp_code": verifiedPayment[0].sp_code,
+        "transaction.sp_message": verifiedPayment[0].sp_message,
+        "transaction.method": verifiedPayment[0].method,
+        "transaction.transactionStatus": verifiedPayment[0].transaction_status,
+        "transaction.date_time": verifiedPayment[0].date_time,
+        status:
+          verifiedPayment[0].bank_status == "Success"
+            ? "Paid"
+            : verifiedPayment[0].bank_status == "Failed"
+            ? "Pending"
+            : verifiedPayment[0].bank_status == "Cancel"
+            ? "Cancelled"
+            : "",
+      }
+    );
+  }
+
+  return verifiedPayment;
+};
+
+const getAllOrdersFromDB = async () => {
+  const result = await Order.find();
   return result;
 };
 
@@ -21,24 +142,24 @@ const getRevenueByBookFromDB = async () => {
     // using $lookup to get the book data
     {
       $lookup: {
-        from: 'books',
-        foreignField: '_id',
-        localField: 'product',
-        as: 'bookData',
+        from: "books",
+        foreignField: "_id",
+        localField: "product",
+        as: "bookData",
       },
     },
     // Step: 2
     // here the bookData is an array, we need to break the array to access its value
     //we can use $unwind to get each value of the array
     {
-      $unwind: '$bookData',
+      $unwind: "$bookData",
     },
     // Step: 3
     // now we have the bookData object, we can access its value
     // using $project only the revenue and calculate using $multiply
     {
       $project: {
-        revenue: { $multiply: ['$quantity', '$bookData.price'] },
+        revenue: { $multiply: ["$quantity", "$bookData.price"] },
       },
     },
     // Step: 4
@@ -46,7 +167,7 @@ const getRevenueByBookFromDB = async () => {
     {
       $group: {
         _id: null,
-        totalRevenue: { $sum: '$revenue' },
+        totalRevenue: { $sum: "$revenue" },
       },
     },
     {
@@ -63,7 +184,7 @@ const getRevenueFromDB = async () => {
     {
       $group: {
         _id: null,
-        totalRevenue: { $sum: '$totalPrice' },
+        totalRevenue: { $sum: "$totalPrice" },
       },
     },
 
@@ -79,4 +200,6 @@ export const orderServices = {
   createOrderToDB,
   getRevenueFromDB,
   getRevenueByBookFromDB,
+  getAllOrdersFromDB,
+  verifyPaymentDB,
 };
