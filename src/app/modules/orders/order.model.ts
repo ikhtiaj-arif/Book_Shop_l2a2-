@@ -1,89 +1,91 @@
-import mongoose, { model, Schema } from 'mongoose';
+import mongoose, { model, Schema, Document, Types } from "mongoose";
+import { IOrder } from "./order.interface";
 
-import { IOrder } from './order.interface';
-
-//create Schema
-const orderSchema = new Schema<IOrder>({
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    // validate: {
-    //   validator: (value: string) => validator.isEmail(value),
-    //   message: 'Invalid email format',
-    // },
-  },
-  product: {
-    type: Schema.Types.ObjectId,
-    ref: 'Products',
-    required: [true, 'Product is required'],
-  },
-  quantity: {
-    type: Number,
-    required: [true, 'Quantity is required'],
-    validate: {
-      validator: (value: number) => value > 0,
-      message: 'Quantity must be a positive integer',
+// Create Schema
+const orderSchema = new Schema<IOrder>(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "Users",
+      required: true,
+    },
+    products: [
+      {
+        product: {
+          type: Schema.Types.ObjectId,
+          ref: "Books",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          validate: {
+            validator: (value: number) => value > 0,
+            message: "Quantity must be a positive integer",
+          },
+        },
+      },
+    ],
+    totalPrice: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: (value: number) => value > 0,
+        message: "Total price must be a positive number",
+      },
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "Paid", "Shipped", "Completed", "Cancelled"],
+      default: "Pending",
+    },
+    transaction: {
+      id: String,
+      transactionStatus: String,
+      bank_status: String,
+      sp_code: String,
+      sp_message: String,
+      method: String,
+      date_time: String,
     },
   },
-  totalPrice: {
-    type: Number,
-    required: [true, 'Total price is required'],
-    validate: {
-      validator: (value: number) => value > 0,
-      message: 'Total price must be a positive number',
-    },
-  },
-  created_at: {
-    type: Date,
-    default: Date.now,
-  },
-  updated_at: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
-//using pre middleware to check the quantity of the product
 
-orderSchema.pre('save', async function (next) {
+orderSchema.pre("save", async function (next) {
   try {
-    // const orders = this.
-    const bookId = this.product;
-    const quantity = this.quantity;
+    for (const item of this.products) {
+      const book = await mongoose.model("Books").findById(item.product);
 
-    const book = await mongoose.model('Books').findById(bookId);
+      if (!book) {
+        const error = new Error("Book not found");
+        error.name = "bookNotFound";
+        return next(error);
+      }
 
-    //if bookId dosen't match any books
-    if (!book) {
-      const error = new Error('Book not found');
-      error.name = 'bookNotFound';
-      return next(error);
+      if (book.quantity < item.quantity) {
+        const error = new Error("Insufficient books in stock");
+        error.name = "insufficientStock";
+        return next(error);
+      }
+
+      book.quantity -= item.quantity;
+
+      if (book.quantity === 0) {
+        book.inStock = false;
+      }
+
+      await book.save();
     }
-
-    //check if the quantity of order is more then the stock
-    if (book.quantity < quantity) {
-      const error = new Error('Insufficient books in stock');
-      error.name = 'insufficientStock';
-      return next(error);
-    }
-
-    //reducing the quantity from the books stock
-    book.quantity -= quantity;
-
-    // check if the quantity becomes 0, set inStock = false
-    if (book.quantity === 0) {
-      book.inStock = false;
-    }
-
-    await book.save();
 
     next();
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    next(error);
+  } catch (error) {
+    throw new Error("Something went wrong")
   }
 });
 
-// create a Model.
-export const Order = model<IOrder>('Orders', orderSchema);
+// Create and export Model
+export const Order = model<IOrder>("Orders", orderSchema);

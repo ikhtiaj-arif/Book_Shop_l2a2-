@@ -1,7 +1,7 @@
 import { Model, Types } from "mongoose";
 
 export interface IUser {
-  _id?: Types.ObjectId
+  _id?: Types.ObjectId;
   name: string;
   email: string;
   password: string;
@@ -13,8 +13,6 @@ export interface UserModel extends Model<IUser> {
   doesUserExistsByEmail(email: string): Promise<IUser>;
   isPasswordMatching(
     plainPassword: string,
-    hashedPassword: string,
+    hashedPassword: string
   ): Promise<Boolean>;
- 
 }
-
