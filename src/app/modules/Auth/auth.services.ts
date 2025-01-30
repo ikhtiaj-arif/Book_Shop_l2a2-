@@ -1,9 +1,9 @@
+import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../../config";
 import AppError from "../../errors/AppError";
 import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { ILoginUser } from "./auth.interface";
-import jwt, { JwtPayload } from 'jsonwebtoken';
 import { createToken } from "./auth.utils";
 
 const createUserIntoDB = async (payload: IUser) => {
@@ -35,6 +35,8 @@ const loginUserIntoDB = async (payload: ILoginUser) => {
   const jwtPayload = {
     email: existingUserData?.email,
     role: existingUserData?.role,
+    id: existingUserData?._id,
+    name: existingUserData.name,
   };
   const accessToken = createToken(
     jwtPayload,
@@ -57,7 +59,7 @@ const refreshTokenDB = async (token: string) => {
   // checking if the given token is valid
   const decoded = jwt.verify(
     token,
-    config.jwt_refresh_secret as string,
+    config.jwt_refresh_secret as string
   ) as JwtPayload;
 
   const { email, iat } = decoded;
@@ -66,16 +68,14 @@ const refreshTokenDB = async (token: string) => {
   const user = await User.doesUserExistsByEmail(email);
 
   if (!user) {
-    throw new AppError(404, 'This user is not found !');
+    throw new AppError(404, "This user is not found !");
   }
-  
-
 
   // checking if the user is blocked
   const userStatus = user?.isBlocked;
 
   if (userStatus) {
-    throw new AppError(403, 'This user is blocked ! !');
+    throw new AppError(403, "This user is blocked ! !");
   }
 
   // if (
@@ -89,13 +89,19 @@ const refreshTokenDB = async (token: string) => {
   const jwtPayload = {
     email: user?.email,
     role: user?.role,
+    id: user?._id,
+    name: user.name,
   };
   const accessToken = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.jwt_access_exp_in as string,
+    config.jwt_access_exp_in as string
   );
 
   return { accessToken };
 };
-export const AuthServices = { createUserIntoDB, loginUserIntoDB, refreshTokenDB};
+export const AuthServices = {
+  createUserIntoDB,
+  loginUserIntoDB,
+  refreshTokenDB,
+};

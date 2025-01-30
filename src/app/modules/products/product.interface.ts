@@ -16,6 +16,7 @@ export interface IBook {
   title: string;
   author: string;
   price: number;
+  imageUrl: string
   category: 'Fiction' | 'Science' | 'SelfDevelopment' | 'Poetry' | 'Religious';
   description: string;
   quantity: number;

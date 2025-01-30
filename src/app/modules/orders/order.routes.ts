@@ -4,16 +4,15 @@ import { UserRole } from "../user/user.constant";
 import { orderController } from "./order.controller";
 
 const router = express.Router();
-const {  getAllOrders, getRevenue, verifyPayment, createOrder } =
+const { getAllOrders, getRevenue, verifyPayment, createOrder, getOrdersById } =
   orderController;
 
-router.post("/", auth(UserRole.admin), createOrder);
-
-router.get("/", auth(UserRole.admin), getAllOrders);
+router.post("/", auth(UserRole.admin, UserRole.user), createOrder);
+router.get("/verify", auth(UserRole.admin, UserRole.user), verifyPayment);
 
 // router.get("/", auth("admin"), getAllOrders);
-router.get("/revenue", auth("admin"), getRevenue);
-
-router.get("/verify", verifyPayment);
+router.get("/revenue", auth(UserRole.admin), getRevenue);
+router.get("/", auth(UserRole.admin), getAllOrders);
+router.get("/:id", auth(UserRole.admin, UserRole.user), getOrdersById);
 
 export const orderRoutes = router;

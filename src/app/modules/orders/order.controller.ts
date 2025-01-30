@@ -1,32 +1,32 @@
 import { Request, Response } from "express";
-import { orderServices } from "./order.services";
 import { JwtPayload } from "jsonwebtoken";
 import { User } from "../user/user.model";
+import { orderServices } from "./order.services";
 
 const {
   createOrderToDB,
   getRevenueFromDB,
   getAllOrdersFromDB,
   verifyPaymentDB,
+  getOrdersByIdFromDB,
 } = orderServices;
 
 const createOrder = async (req: Request, res: Response) => {
   try {
-
     const orderData = req.body;
     const userPayload = req.user as JwtPayload; // Ensure type safety
 
     // Fetch user from DB using the ID from the token
-    const user = await User.findById(userPayload.id); 
+    const user = await User.findById(userPayload.id);
 
     if (!user) {
       res.status(404).json({
         message: "User not found",
         status: false,
       });
-      return
+      return;
     }
-    
+
     const result = await createOrderToDB(user, orderData, req.ip!);
     res.status(200).json({
       message: "Order created successfully",
@@ -75,9 +75,28 @@ const verifyPayment = async (req: Request, res: Response) => {
     });
   }
 };
+
 const getAllOrders = async (req: Request, res: Response) => {
   try {
     const result = await getAllOrdersFromDB();
+    res.status(200).json({
+      message: "Orders collected successfully",
+      status: true,
+      data: result,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    res.status(500).json({
+      message: error._message,
+      success: false,
+      error: error.message || "Something went wrong",
+    });
+  }
+};
+const getOrdersById = async (req: Request, res: Response) => {
+  try {
+    const result = await getOrdersByIdFromDB(req.params.id);
     res.status(200).json({
       message: "Orders collected successfully",
       status: true,
@@ -118,4 +137,5 @@ export const orderController = {
   getRevenue,
   getAllOrders,
   verifyPayment,
+  getOrdersById,
 };

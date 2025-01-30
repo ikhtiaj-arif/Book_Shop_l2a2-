@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { productServices } from './product.service';
+import { Request, Response } from "express";
+import { productServices } from "./product.service";
 
 const {
   createBookIntoDB,
@@ -16,7 +16,7 @@ const createBook = async (req: Request, res: Response) => {
     const result = await createBookIntoDB(productData);
 
     res.status(200).json({
-      message: 'Book created successfully',
+      message: "Book created successfully",
       success: true,
       data: result,
     });
@@ -26,7 +26,7 @@ const createBook = async (req: Request, res: Response) => {
     res.status(500).json({
       message: error._message,
       success: false,
-      error: error || 'Something went wrong',
+      error: error || "Something went wrong",
     });
   }
 };
@@ -35,7 +35,7 @@ const getAllBooks = async (req: Request, res: Response) => {
   try {
     const result = await getAllBooksFromDB();
     res.status(200).json({
-      message: 'Books retrieved successfully',
+      message: "Books retrieved successfully",
       success: true,
       data: result,
     });
@@ -45,7 +45,7 @@ const getAllBooks = async (req: Request, res: Response) => {
     res.status(500).json({
       message: error._message,
       success: false,
-      error: error || 'Something went wrong',
+      error: error || "Something went wrong",
     });
   }
 };
@@ -57,14 +57,14 @@ const getBook = async (req: Request, res: Response) => {
 
     if (result) {
       res.status(200).json({
-        message: 'Book retrieved successfully',
+        message: "Book retrieved successfully",
         success: true,
         data: result,
       });
     } else {
       res.status(404).json({
         success: false,
-        message: 'Book not found!',
+        message: "Book not found!",
       });
     }
     console.log(result);
@@ -73,7 +73,7 @@ const getBook = async (req: Request, res: Response) => {
     res.status(500).json({
       message: error._message,
       success: false,
-      error: error || 'Something went wrong',
+      error: error || "Something went wrong",
     });
   }
 };
@@ -93,14 +93,14 @@ const updateBook = async (req: Request, res: Response) => {
     const result = await updateBookToDB(bookID, bookData);
     if (result) {
       res.status(200).json({
-        message: 'Book updated successfully',
+        message: "Book updated successfully",
         success: true,
         data: result,
       });
     } else {
       res.status(404).json({
         success: false,
-        message: 'Book not found!',
+        message: "Book not found!",
       });
     }
     console.log(result);
@@ -109,7 +109,7 @@ const updateBook = async (req: Request, res: Response) => {
     res.status(500).json({
       message: error._message,
       success: false,
-      error: error || 'Something went wrong',
+      error: error || "Something went wrong",
     });
   }
 };
@@ -121,14 +121,14 @@ const deleteBook = async (req: Request, res: Response) => {
 
     if (result) {
       res.status(200).json({
-        message: 'Book deleted successfully',
+        message: "Book deleted successfully",
         success: true,
         data: {},
       });
     } else {
       res.status(404).json({
         success: false,
-        message: 'Book not found!',
+        message: "Book not found!",
       });
     }
     console.log(result);
@@ -137,7 +137,7 @@ const deleteBook = async (req: Request, res: Response) => {
     res.status(500).json({
       message: error._message,
       success: false,
-      error: error || 'Something went wrong',
+      error: error || "Something went wrong",
     });
   }
 };
