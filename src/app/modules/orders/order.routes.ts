@@ -8,13 +8,11 @@ const { getAllOrders, getRevenue, verifyPayment, createOrder, getOrdersById } =
   orderController;
 
 router.post("/", auth(UserRole.admin, UserRole.user), createOrder);
-
-router.get("/", auth(UserRole.admin), getAllOrders);
-router.get("/:id", auth(UserRole.admin, UserRole.user), getOrdersById);
+router.get("/verify", auth(UserRole.admin, UserRole.user), verifyPayment);
 
 // router.get("/", auth("admin"), getAllOrders);
 router.get("/revenue", auth(UserRole.admin), getRevenue);
-
-router.get("/verify", auth(UserRole.admin, UserRole.user), verifyPayment);
+router.get("/", auth(UserRole.admin), getAllOrders);
+router.get("/:id", auth(UserRole.admin, UserRole.user), getOrdersById);
 
 export const orderRoutes = router;

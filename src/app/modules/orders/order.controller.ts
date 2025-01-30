@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { orderServices } from "./order.services";
 import { JwtPayload } from "jsonwebtoken";
 import { User } from "../user/user.model";
+import { orderServices } from "./order.services";
 
 const {
   createOrderToDB,
@@ -75,6 +75,7 @@ const verifyPayment = async (req: Request, res: Response) => {
     });
   }
 };
+
 const getAllOrders = async (req: Request, res: Response) => {
   try {
     const result = await getAllOrdersFromDB();
@@ -95,7 +96,6 @@ const getAllOrders = async (req: Request, res: Response) => {
 };
 const getOrdersById = async (req: Request, res: Response) => {
   try {
-    
     const result = await getOrdersByIdFromDB(req.params.id);
     res.status(200).json({
       message: "Orders collected successfully",
