@@ -1,21 +1,21 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema } from "mongoose";
 
-import { IBook } from './product.interface';
+import { IBook } from "./product.interface";
 
 //create Schema
 const bookSchema = new Schema<IBook>({
   title: {
     type: String,
-    required: [true, 'Title is required!'],
+    required: [true, "Title is required!"],
     unique: true,
     validate: {
       validator: (value: string) => /^[a-zA-Z0-9\s.,'’]+$/.test(value.trim()),
-      message: 'Title contains invalid characters!',
+      message: "Title contains invalid characters!",
     },
   },
   author: {
     type: String,
-    required: [true, 'Author name is required!'],
+    required: [true, "Author name is required!"],
     // validate: {
     //   validator: (value: string) =>
     //     validator.isAlpha(value.replace(/[\s.,']/g, ''), 'en-US'),
@@ -24,23 +24,24 @@ const bookSchema = new Schema<IBook>({
   },
   price: {
     type: Number,
-    required: [true, 'Price is required!'],
+    required: [true, "Price is required!"],
     // validate: {
     //   validator: (value: number) => value > 0,
     //   message: 'Price must be a positive number!',
     // },
   },
+  imageUrl: { type: String, required: [true, "Image is required!"] },
   category: {
     type: String,
     enum: {
-      values: ['Fiction', 'Science', 'SelfDevelopment', 'Poetry', 'Religious'],
-      message: 'Invalid category',
+      values: ["Fiction", "Science", "SelfDevelopment", "Poetry", "Religious"],
+      message: "Invalid category",
     },
-    required: [true, 'Category is required!'],
+    required: [true, "Category is required!"],
   },
   description: {
     type: String,
-    required: [true, 'Description is required!'],
+    required: [true, "Description is required!"],
     // validate: [
     //   // Validating minimum characters
     //   {
@@ -55,10 +56,10 @@ const bookSchema = new Schema<IBook>({
   },
   quantity: {
     type: Number,
-    required: [true, 'Quantity is required!'],
+    required: [true, "Quantity is required!"],
     validate: {
       validator: (value: number) => Number.isInteger(value) && value >= 0,
-      message: 'Quantity must be a non-negative integer!',
+      message: "Quantity must be a non-negative integer!",
     },
   },
   inStock: {
@@ -76,4 +77,4 @@ const bookSchema = new Schema<IBook>({
 });
 
 // create a Model.
-export const Book = model<IBook>('Books', bookSchema);
+export const Book = model<IBook>("Books", bookSchema);

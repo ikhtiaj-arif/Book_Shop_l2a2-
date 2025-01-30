@@ -4,39 +4,7 @@ import Order from "./order.model";
 
 import { orderUtils } from "./order.utils";
 
-// const createOrderToDB = async (orderData: IOrder, client_ip: string) => {
-//   let order;
-//   // let order = await Order.create({orderData});
-
-//   //payment integration
-
-//   const shurjopayPayload = {
-//     amount: 12,
-//     order_id: "orderData",
-//     currency: "BDT",
-//     customer_name: "BDT",
-//     customer_address: "BDT",
-//     customer_email: "BDT",
-//     customer_phone: "BDT",
-//     customer_city: "BDT",
-//     client_ip,
-//     data: orderData,
-//   };
-
-//   const payment = await orderUtils.makePayment(shurjopayPayload);
-
-//   if (payment?.transactionStatus) {
-//     order = await Order.create({
-//       ...orderData,
-//       transaction: {
-//         id: payment.sp_order_id,
-//         transactionStatus: payment.transactionStatus,
-//       },
-//     });
-//   }
-
-//   return { payment, order };
-// };
+import mongoose from "mongoose";
 
 const createOrderToDB = async (
   user: IUser,
@@ -45,52 +13,76 @@ const createOrderToDB = async (
 ) => {
   if (!payload?.products?.length) throw new Error("Order is not specified");
 
-  const products = payload.products;
+  const session = await mongoose.startSession();
+  session.startTransaction(); // Start Transaction
 
-  let totalPrice = 0;
-  const productDetails = await Promise.all(
-    products.map(async (item) => {
-      const product = await Book.findById(item.product);
-      if (product) {
-        const subtotal = product ? (product.price || 0) * item.quantity : 0;
-        totalPrice += subtotal;
-        return item;
-      }
-    })
-  );
+  try {
+    const products = payload.products;
+    let totalPrice = 0;
 
-  let order = await Order.create({
-    user,
-    products: productDetails,
-    totalPrice,
-  });
+    const productDetails = await Promise.all(
+      products.map(async (item) => {
+        const product = await Book.findById(item.product).session(session);
 
-  // payment integration
-  const shurjopayPayload = {
-    amount: totalPrice,
-    order_id: order._id,
-    currency: "BDT",
-    customer_name: user.name,
-    customer_address: "user.address",
-    customer_email: user.email,
-    customer_phone: "user.phone",
-    customer_city: "user.city",
-    client_ip,
-  };
+        if (!product) throw new Error(`Product with ID ${item.product} not found`);
+        if (product.quantity < item.quantity) throw new Error(`Insufficient stock for ${product.title}`);
 
-  const payment = await orderUtils.makePayment(shurjopayPayload);
+        // Reduce product quantity
+        product.quantity -= item.quantity;
+        await product.save({ session });
 
-  if (payment?.transactionStatus) {
-    order = await order.updateOne({
-      transaction: {
-        id: payment.sp_order_id,
-        transactionStatus: payment.transactionStatus,
-      },
-    });
+        // Calculate total price
+        totalPrice += (product.price || 0) * item.quantity;
+
+        return { product: product._id, quantity: item.quantity };
+      })
+    );
+
+    let order = await Order.create(
+      [{ user, products: productDetails, totalPrice }],
+      { session }
+    );
+
+    // Payment integration
+    const shurjopayPayload = {
+      amount: totalPrice,
+      order_id: order[0]._id,
+      currency: "BDT",
+      customer_name: user.name,
+      customer_address: "user.address",
+      customer_email: user.email,
+      customer_phone: "user.phone",
+      customer_city: "user.city",
+      client_ip,
+    };
+
+    const payment = await orderUtils.makePayment(shurjopayPayload);
+
+    if (payment?.transactionStatus) {
+      await Order.updateOne(
+        { _id: order[0]._id },
+        {
+          transaction: {
+            id: payment.sp_order_id,
+            transactionStatus: payment.transactionStatus,
+          },
+        },
+        { session }
+      );
+    }
+
+    // Commit the transaction if everything is successful
+    await session.commitTransaction();
+    session.endSession();
+
+    return payment.checkout_url;
+  } catch (error) {
+    await session.abortTransaction(); // Rollback in case of an error
+    session.endSession();
+    throw error; // Propagate the error
   }
-
-  return payment.checkout_url;
 };
+
 
 const verifyPaymentDB = async (order_id: string) => {
   const verifiedPayment = await orderUtils.verifyPayment(order_id);
