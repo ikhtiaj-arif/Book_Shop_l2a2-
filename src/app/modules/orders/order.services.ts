@@ -126,6 +126,10 @@ const getAllOrdersFromDB = async () => {
   const result = await Order.find();
   return result;
 };
+const getOrdersByIdFromDB = async (payload: string) => {
+  const result = await Order.find({ user: payload });
+  return result;
+};
 
 const getRevenueByBookFromDB = async () => {
   const result = await Order.aggregate([
@@ -202,4 +206,5 @@ export const orderServices = {
   getRevenueByBookFromDB,
   getAllOrdersFromDB,
   verifyPaymentDB,
+  getOrdersByIdFromDB,
 };
