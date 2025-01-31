@@ -16,11 +16,6 @@ const bookSchema = new Schema<IBook>({
   author: {
     type: String,
     required: [true, "Author name is required!"],
-    // validate: {
-    //   validator: (value: string) =>
-    //     validator.isAlpha(value.replace(/[\s.,']/g, ''), 'en-US'),
-    //   message: 'Author name contains invalid characters!',
-    // },
   },
   price: {
     type: Number,
