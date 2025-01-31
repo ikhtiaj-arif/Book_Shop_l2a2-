@@ -24,3 +24,40 @@ export interface IBook {
   created_at?: Date;
   updated_at?: Date;
 }
+
+type IProduct = {
+  title: string;
+  author: string;
+  price: number;
+  discountPrice?: number; // Optional field for discount
+  imageUrl: string;
+  category: 
+    | 'Fiction' 
+    | 'Science' 
+    | 'SelfDevelopment' 
+    | 'Poetry' 
+    | 'Religious' 
+    | 'Biography' 
+    | 'Mystery' 
+    | 'Thriller' 
+    | 'Fantasy' 
+    | 'History' 
+    | 'Romance' 
+    | 'Philosophy' 
+    | 'Technology' 
+    | 'Health & Wellness' 
+    | 'Business' 
+    | 'Children' 
+    | 'Education' 
+    | 'Travel' 
+    | 'Cooking' 
+    | 'Horror' 
+    | 'Graphic Novels';
+  description: string;
+  publisher: string;
+  publicationYear: number;
+  language: string;
+  stockQuantity: number;
+  pageCount: number;
+  bestSeller: boolean;
+};
