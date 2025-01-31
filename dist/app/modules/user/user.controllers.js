@@ -16,7 +16,7 @@ exports.userControllers = void 0;
 const CatchAsync_1 = __importDefault(require("../../utils/CatchAsync"));
 const SendResponse_1 = __importDefault(require("../../utils/SendResponse"));
 const user_services_1 = require("./user.services");
-const { blockUserIntoDB } = user_services_1.userServices;
+const { blockUserIntoDB, getAllUsersFromDB, unblockUserIntoDB } = user_services_1.userServices;
 const blockUser = (0, CatchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blockId = req.params.userId;
     yield blockUserIntoDB(blockId);
@@ -27,7 +27,27 @@ const blockUser = (0, CatchAsync_1.default)((req, res) => __awaiter(void 0, void
         // data: {},
     });
 }));
+const unBlockUser = (0, CatchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const blockId = req.params.userId;
+    yield unblockUserIntoDB(blockId);
+    (0, SendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "User unblocked successfully!",
+        // data: {},
+    });
+}));
+const getAllUsers = (0, CatchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield getAllUsersFromDB();
+    (0, SendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "User Retrieved successfully!",
+        data: result,
+    });
+}));
 exports.userControllers = {
     // createUser,
-    blockUser,
+    getAllUsers,
+    blockUser, unBlockUser
 };

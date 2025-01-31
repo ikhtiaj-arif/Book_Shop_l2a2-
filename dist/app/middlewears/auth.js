@@ -19,12 +19,17 @@ const user_model_1 = require("../modules/user/user.model");
 const CatchAsync_1 = __importDefault(require("../utils/CatchAsync"));
 const auth = (...requiredRole) => {
     return (0, CatchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-        const header = req.headers.authorization;
+        //!use headers to send token
+        // const header = req.headers.authorization;
+        // if (!header || !header.startsWith("Bearer")) {
+        //   throw new AppError(401, "You are not authorized!");
+        // }
+        // const token = header.split(" ")[1];
+        const token = req.headers.authorization;
         // checking if the token is missing
-        if (!header || !header.startsWith("Bearer ")) {
-            throw new AppError_1.default(401, "You are not authorized!");
+        if (!token) {
+            throw new AppError_1.default(401, 'You are not authorized!');
         }
-        const token = header.split(" ")[1];
         // checking if the given token is valid
         const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
         const { role, email, iat } = decoded;

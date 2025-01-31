@@ -11,10 +11,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userServices = void 0;
 const user_model_1 = require("./user.model");
+const getAllUsersFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
+    const result = user_model_1.User.find();
+    return result;
+});
 const blockUserIntoDB = (blockId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = user_model_1.User.findByIdAndUpdate(blockId, { isBlocked: true });
     return result;
 });
+const unblockUserIntoDB = (blockId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = user_model_1.User.findByIdAndUpdate(blockId, { isBlocked: false });
+    return result;
+});
 exports.userServices = {
     blockUserIntoDB,
+    getAllUsersFromDB,
+    unblockUserIntoDB
 };

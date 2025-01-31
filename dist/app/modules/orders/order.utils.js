@@ -12,15 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const CatchAsync_1 = __importDefault(require("../utils/CatchAsync"));
-const ValidateRequest = (schema) => {
-    return (0, CatchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-        //!creating schema validation using zod
-        yield schema.parseAsync({
-            body: req.body,
-            cookies: req.cookies,
-        });
-        next();
-    }));
-};
-exports.default = ValidateRequest;
+exports.orderUtils = void 0;
+const shurjopay_1 = __importDefault(require("shurjopay"));
+const config_1 = __importDefault(require("../../config"));
+const shurjopay = new shurjopay_1.default();
+shurjopay.config(config_1.default.sp.sp_endpoint, config_1.default.sp.sp_username, config_1.default.sp.sp_password, config_1.default.sp.sp_prefix, config_1.default.sp.sp_return_url);
+const makePayment = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve, reject) => {
+        shurjopay.makePayment(payload, (res) => resolve(res), (error) => reject(error));
+    });
+});
+const verifyPayment = (order_id) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve, reject) => {
+        shurjopay.verifyPayment(order_id, (res) => resolve(res), (err) => reject(err));
+    });
+});
+exports.orderUtils = { makePayment, verifyPayment };
