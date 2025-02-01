@@ -32,10 +32,7 @@ const changePasswordDB = async (
   if (!passwordMatching) {
     throw new AppError(401, "Invalid credentials");
   }
-  console.log(passwordMatching);
-  return {
-    message: "Password updated successfully!",
-  };
+
   const changedPassword = await bcrypt.hash(
     newPassword,
     Number(config.bcrypt_salt_rounds)

@@ -9,13 +9,13 @@ const port = 3000;
 
 //parsers
 app.use(express.json());
-// app.use(
-//   cors({
-//     origin: "https://book-shop-client-l2a4.vercel.app",
-//     credentials: true,
-//   })
-// );
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(
+  cors({
+    origin: "https://book-shop-client-l2a4.vercel.app",
+    credentials: true,
+  })
+);
+// app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(cookieParser());
 
 //application routes

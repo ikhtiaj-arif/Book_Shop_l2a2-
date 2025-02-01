@@ -63,6 +63,7 @@ userSchema.statics.doesUserExistsByEmail = function (email) {
 };
 userSchema.statics.isPasswordMatching = function (plainPassword, hashedPassword) {
     return __awaiter(this, void 0, void 0, function* () {
+        // console.log(plainPassword, hashedPassword);
         return yield bcrypt_1.default.compare(plainPassword, hashedPassword);
     });
 };

@@ -16,7 +16,7 @@ exports.userControllers = void 0;
 const CatchAsync_1 = __importDefault(require("../../utils/CatchAsync"));
 const SendResponse_1 = __importDefault(require("../../utils/SendResponse"));
 const user_services_1 = require("./user.services");
-const { blockUserIntoDB, getAllUsersFromDB, unblockUserIntoDB } = user_services_1.userServices;
+const { blockUserIntoDB, getAllUsersFromDB, unblockUserIntoDB, changePasswordDB, } = user_services_1.userServices;
 const blockUser = (0, CatchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const blockId = req.params.userId;
     yield blockUserIntoDB(blockId);
@@ -46,8 +46,22 @@ const getAllUsers = (0, CatchAsync_1.default)((req, res) => __awaiter(void 0, vo
         data: result,
     });
 }));
+const changePassword = (0, CatchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const currentUserPass = user === null || user === void 0 ? void 0 : user.password;
+    const { oldPassword, newPassword } = req.body;
+    const result = yield changePasswordDB(user, oldPassword, newPassword);
+    (0, SendResponse_1.default)(res, {
+        success: true,
+        statusCode: 200,
+        message: "User Retrieved successfully!",
+        data: result,
+    });
+}));
 exports.userControllers = {
     // createUser,
     getAllUsers,
-    blockUser, unBlockUser
+    blockUser,
+    unBlockUser,
+    changePassword,
 };
