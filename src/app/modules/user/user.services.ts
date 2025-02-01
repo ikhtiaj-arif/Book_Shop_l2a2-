@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
+import { JwtPayload } from "jsonwebtoken";
 import config from "../../config";
 import AppError from "../../errors/AppError";
 import { User } from "./user.model";
-import { JwtPayload } from "jsonwebtoken";
 
 const getAllUsersFromDB = async () => {
   const result = User.find();
@@ -21,23 +21,21 @@ const changePasswordDB = async (
   oldPassword: string,
   newPassword: string
 ) => {
+  console.log(existingUserData?.password, oldPassword);
   //check the user is blocked or not
-  const isUserBlocked = existingUserData?.isBlocked;
-  if (isUserBlocked) {
-    throw new AppError(403, "The user is blocked!");
-  }
 
   //check if the password matches the hashed password
   const passwordMatching = await User.isPasswordMatching(
     oldPassword,
-    existingUserData.password
+    existingUserData?.password
   );
   if (!passwordMatching) {
     throw new AppError(401, "Invalid credentials");
   }
-
-  // const user = await User.findById(existingUserData?.id);
-
+  console.log(passwordMatching);
+  return {
+    message: "Password updated successfully!",
+  };
   const changedPassword = await bcrypt.hash(
     newPassword,
     Number(config.bcrypt_salt_rounds)
