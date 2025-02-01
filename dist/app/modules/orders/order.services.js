@@ -100,7 +100,10 @@ const getAllOrdersFromDB = () => __awaiter(void 0, void 0, void 0, function* () 
     return result;
 });
 const getOrdersByIdFromDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield order_model_1.default.find({ user: payload });
+    const result = yield order_model_1.default.find({ user: payload }).populate({
+        path: "products.product", // Use dot notation for nested population
+        model: "Books", // Ensure this matches your Mongoose model name
+    });
     return result;
 });
 const getRevenueByBookFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
