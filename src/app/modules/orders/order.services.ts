@@ -24,8 +24,10 @@ const createOrderToDB = async (
       products.map(async (item) => {
         const product = await Book.findById(item.product).session(session);
 
-        if (!product) throw new Error(`Product with ID ${item.product} not found`);
-        if (product.quantity < item.quantity) throw new Error(`Insufficient stock for ${product.title}`);
+        if (!product)
+          throw new Error(`Product with ID ${item.product} not found`);
+        if (product.quantity < item.quantity)
+          throw new Error(`Insufficient stock for ${product.title}`);
 
         // Reduce product quantity
         product.quantity -= item.quantity;
@@ -83,7 +85,6 @@ const createOrderToDB = async (
   }
 };
 
-
 const verifyPaymentDB = async (order_id: string) => {
   const verifiedPayment = await orderUtils.verifyPayment(order_id);
 
@@ -119,7 +120,10 @@ const getAllOrdersFromDB = async () => {
   return result;
 };
 const getOrdersByIdFromDB = async (payload: string) => {
-  const result = await Order.find({ user: payload });
+  const result = await Order.find({ user: payload }).populate({
+    path: "products.product", // Use dot notation for nested population
+    model: "Books", // Ensure this matches your Mongoose model name
+  });
   return result;
 };
 

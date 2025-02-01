@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthServices = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const user_model_1 = require("../user/user.model");
@@ -41,10 +42,48 @@ const loginUserIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function*
     const jwtPayload = {
         email: existingUserData === null || existingUserData === void 0 ? void 0 : existingUserData.email,
         role: existingUserData === null || existingUserData === void 0 ? void 0 : existingUserData.role,
+        id: existingUserData === null || existingUserData === void 0 ? void 0 : existingUserData._id,
+        name: existingUserData.name,
     };
-    const token = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_exp_in);
+    const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_exp_in);
+    const refreshToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_refresh_secret, config_1.default.jwt_refresh_exp_in);
     return {
-        token,
+        accessToken,
+        refreshToken,
     };
 });
-exports.AuthServices = { createUserIntoDB, loginUserIntoDB };
+const refreshTokenDB = (token) => __awaiter(void 0, void 0, void 0, function* () {
+    // checking if the given token is valid
+    const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_refresh_secret);
+    const { email, iat } = decoded;
+    // checking if the user is exist
+    const user = yield user_model_1.User.doesUserExistsByEmail(email);
+    if (!user) {
+        throw new AppError_1.default(404, "This user is not found !");
+    }
+    // checking if the user is blocked
+    const userStatus = user === null || user === void 0 ? void 0 : user.isBlocked;
+    if (userStatus) {
+        throw new AppError_1.default(403, "This user is blocked ! !");
+    }
+    // if (
+    //   user.passwordChangedAt &&
+    //   User.isJWTIssuedBeforePassChange(user.passwordChangedAt, iat as number)
+    // ) {
+    //   throw new AppError(401, 'You are not authorized !');
+    // }
+    //create token and send to the client
+    const jwtPayload = {
+        email: user === null || user === void 0 ? void 0 : user.email,
+        role: user === null || user === void 0 ? void 0 : user.role,
+        id: user === null || user === void 0 ? void 0 : user._id,
+        name: user.name,
+    };
+    const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_exp_in);
+    return { accessToken };
+});
+exports.AuthServices = {
+    createUserIntoDB,
+    loginUserIntoDB,
+    refreshTokenDB,
+};
