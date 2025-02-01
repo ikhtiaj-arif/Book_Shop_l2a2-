@@ -3,7 +3,7 @@ import { model, Schema } from "mongoose";
 import config from "../../config";
 import { IUser, UserModel } from "./user.interface";
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUser, UserModel>(
   {
     name: {
       type: String,
@@ -59,6 +59,7 @@ userSchema.statics.isPasswordMatching = async function (
   plainPassword,
   hashedPassword
 ) {
+  console.log(plainPassword, hashedPassword);
   return await bcrypt.compare(plainPassword, hashedPassword);
 };
 
