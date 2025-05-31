@@ -10,7 +10,7 @@ const createBookIntoDB = async (bookData: IBook) => {
 
 const getAllBooksFromDB = async () => {
   //get all books from db
-  const result = await Book.find();
+  const result = await Book.find().populate('category');
   return result;
 };
 
