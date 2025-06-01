@@ -30,22 +30,21 @@ const createBook = async (req: Request, res: Response) => {
     });
   }
 };
-
-const getAllBooks = async (req: Request, res: Response) => {
+export const getAllBooks = async (req: Request, res: Response) => {
   try {
-    const result = await getAllBooksFromDB();
+    const result = await getAllBooksFromDB(req.query);
+
     res.status(200).json({
       message: "Books retrieved successfully",
       success: true,
-      data: result,
+      meta: result.meta,
+      data: result.data,
     });
-    console.log(result);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     res.status(500).json({
-      message: error._message,
+      message: error._message || "Something went wrong",
       success: false,
-      error: error || "Something went wrong",
+      error: error.message || error,
     });
   }
 };
