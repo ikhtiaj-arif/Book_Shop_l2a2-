@@ -1,7 +1,5 @@
 // title (string): The title of the book.
 
-import { Types } from "mongoose";
-
 // author (string): The author of the book.
 
 // price (number): Price of the book.
@@ -26,10 +24,11 @@ export interface IBook1 {
   created_at?: Date;
   updated_at?: Date;
 }
-export interface IBookWithCategoryRef extends IBook {
-  category: Types.ObjectId;
+export interface IBookWithCategoryRef {
+  title: string;
+  quantity: number;
+  price: number;
 }
-
 export interface IBook {
   title: string; // Book title
   author: string; // Author name

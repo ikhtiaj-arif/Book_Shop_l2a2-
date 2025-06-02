@@ -6,6 +6,13 @@ export interface IOrder extends Document {
     product: Types.ObjectId;
     quantity: number;
   }[];
+  billingAddress: {
+    address: string;
+    city: string;
+    country: string;
+    state: string;
+    zipCode: string;
+  };
   totalPrice: number;
   status: "Pending" | "Paid" | "Shipped" | "Completed" | "Cancelled";
   transaction: {
@@ -20,3 +27,5 @@ export interface IOrder extends Document {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export type OrderStatus = "Pending" | "Paid" | "Shipped" | "Completed" | "Cancelled";

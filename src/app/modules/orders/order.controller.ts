@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { JwtPayload } from "jsonwebtoken";
 import { User } from "../user/user.model";
+import { OrderStatus } from "./order.interface";
 import { orderServices } from "./order.services";
 
 const {
@@ -9,6 +10,7 @@ const {
   getAllOrdersFromDB,
   verifyPaymentDB,
   getOrdersByIdFromDB,
+  updateOrderStatusDB,
 } = orderServices;
 
 const createOrder = async (req: Request, res: Response) => {
@@ -132,10 +134,53 @@ const getRevenue = async (req: Request, res: Response) => {
   }
 };
 
+const updateOrderStatus = async (req: Request, res: Response) => {
+  try {
+    const { status } = req.body;
+    const { orderId } = req.params;
+
+    if (!orderId || !status) {
+      return res.status(400).json({
+        message: "Missing orderId or status",
+        success: false,
+      });
+    }
+
+    const validStatuses: OrderStatus[] = [
+      "Pending",
+      "Paid",
+      "Shipped",
+      "Completed",
+      "Cancelled",
+    ];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        message: `Invalid status: ${status}`,
+        success: false,
+      });
+    }
+
+    const result = await updateOrderStatusDB(orderId, status);
+
+    res.status(200).json({
+      message: "Order status updated successfully",
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      message: error._message || "Something went wrong",
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
 export const orderController = {
   createOrder,
   getRevenue,
   getAllOrders,
   verifyPayment,
   getOrdersById,
+  updateOrderStatus,
 };

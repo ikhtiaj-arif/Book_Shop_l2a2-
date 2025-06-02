@@ -1,5 +1,6 @@
 import { Book } from "../products/products.model";
 import { IUser } from "../user/user.interface";
+import { OrderStatus } from "./order.interface";
 import Order from "./order.model";
 
 import { orderUtils } from "./order.utils";
@@ -8,7 +9,16 @@ import mongoose from "mongoose";
 
 const createOrderToDB = async (
   user: IUser,
-  payload: { products: { product: string; quantity: number }[] },
+  payload: {
+    products: { product: string; quantity: number }[];
+    billingAddress: {
+      address: string;
+      city: string;
+      country: string;
+      state: string;
+      zipCode: string;
+    };
+  },
   client_ip: string
 ) => {
   if (!payload?.products?.length) throw new Error("Order is not specified");
@@ -19,6 +29,7 @@ const createOrderToDB = async (
   try {
     const products = payload.products;
     let totalPrice = 0;
+    const billingAddress = payload.billingAddress
 
     const productDetails = await Promise.all(
       products.map(async (item) => {
@@ -41,7 +52,7 @@ const createOrderToDB = async (
     );
 
     let order = await Order.create(
-      [{ user, products: productDetails, totalPrice }],
+      [{ user, products: productDetails, totalPrice, billingAddress }],
       { session }
     );
 
@@ -196,6 +207,32 @@ const getRevenueFromDB = async () => {
   return result[0];
   // console.log(JSON.stringify(result, null, 2));
 };
+
+
+const updateOrderStatusDB = async (
+  orderId: string,
+  status: OrderStatus
+) => {
+  if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    throw new Error("Invalid order ID");
+  }
+
+  const validStatuses: OrderStatus[] = ["Pending", "Paid", "Shipped", "Completed", "Cancelled"];
+  if (!validStatuses.includes(status)) {
+    throw new Error(`Invalid status: ${status}`);
+  }
+
+  const result = await Order.findByIdAndUpdate(
+    orderId,
+    { status },
+    { new: true }
+  );
+
+  if (!result) {
+    throw new Error("Order not found or update failed");
+  }
+  return result
+};
 export const orderServices = {
   createOrderToDB,
   getRevenueFromDB,
@@ -203,4 +240,5 @@ export const orderServices = {
   getAllOrdersFromDB,
   verifyPaymentDB,
   getOrdersByIdFromDB,
+  updateOrderStatusDB
 };

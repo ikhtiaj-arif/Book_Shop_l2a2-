@@ -21,6 +21,13 @@ const OrderSchema = new Schema<IOrder>(
         },
       },
     ],
+    billingAddress: {
+      address: String,
+      city: String,
+      country: String,
+      state: String,
+      zipCode: String,
+    },
     totalPrice: {
       type: Number,
       required: true,
