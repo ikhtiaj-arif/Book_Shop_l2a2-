@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { JwtPayload } from "jsonwebtoken";
 import { User } from "../user/user.model";
-import { OrderStatus } from "./order.interface";
 import { orderServices } from "./order.services";
 
 const {
@@ -138,27 +137,6 @@ const updateOrderStatus = async (req: Request, res: Response) => {
   try {
     const { status } = req.body;
     const { orderId } = req.params;
-
-    if (!orderId || !status) {
-      return res.status(400).json({
-        message: "Missing orderId or status",
-        success: false,
-      });
-    }
-
-    const validStatuses: OrderStatus[] = [
-      "Pending",
-      "Paid",
-      "Shipped",
-      "Completed",
-      "Cancelled",
-    ];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({
-        message: `Invalid status: ${status}`,
-        success: false,
-      });
-    }
 
     const result = await updateOrderStatusDB(orderId, status);
 

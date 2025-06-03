@@ -29,7 +29,7 @@ const createOrderToDB = async (
   try {
     const products = payload.products;
     let totalPrice = 0;
-    const billingAddress = payload.billingAddress
+    const billingAddress = payload.billingAddress;
 
     const productDetails = await Promise.all(
       products.map(async (item) => {
@@ -208,16 +208,18 @@ const getRevenueFromDB = async () => {
   // console.log(JSON.stringify(result, null, 2));
 };
 
-
-const updateOrderStatusDB = async (
-  orderId: string,
-  status: OrderStatus
-) => {
+const updateOrderStatusDB = async (orderId: string, status: OrderStatus) => {
   if (!mongoose.Types.ObjectId.isValid(orderId)) {
     throw new Error("Invalid order ID");
   }
 
-  const validStatuses: OrderStatus[] = ["Pending", "Paid", "Shipped", "Completed", "Cancelled"];
+  const validStatuses: OrderStatus[] = [
+    "Pending",
+    "Paid",
+    "Shipped",
+    "Completed",
+    "Cancelled",
+  ];
   if (!validStatuses.includes(status)) {
     throw new Error(`Invalid status: ${status}`);
   }
@@ -231,7 +233,7 @@ const updateOrderStatusDB = async (
   if (!result) {
     throw new Error("Order not found or update failed");
   }
-  return result
+  return result;
 };
 export const orderServices = {
   createOrderToDB,
@@ -240,5 +242,5 @@ export const orderServices = {
   getAllOrdersFromDB,
   verifyPaymentDB,
   getOrdersByIdFromDB,
-  updateOrderStatusDB
+  updateOrderStatusDB,
 };
